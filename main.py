@@ -10,17 +10,17 @@ API_HASH = '59edb6a86e3f130732b8a0c64510cd40'
 PHONE_NUMBER = '+9647844101857' 
 TARGET_GROUP = 'stevenalbaghdadichat'
 
+# --- نمط الرسائل الجديد ---
 MESSAGES = [
-    "نورت يا غالي، الكروب مالتنا بالبايو انضم لنا خل نموله ✨",
-    "هلا بيك، تعال لكروب المكالمات مالتنا، الرابط خليته بالبايو عندي 🎤",
-    "ياهلا نورت، موجود رابط كروب تمويل بحسابي (بالبايو) فوت لتقصر 🚀",
-    "حياك الله، ممكن تنضم لكروبنا؟ الرابط موجود بوصف حسابي 🔥",
-    "كفو منك، ادخل لكروبنا الرسمي، التفاصيل واليوزر بالبايو مالي 💎",
-    "منور يا طيب، سوينا تجمع جديد والروابط ببروفايلي، نورنا 🌟",
-    "هلا بيك، كروب التمويل والمكالمات بالبايو مالي، انضم 🎈"
+    "كـروب مـكـالمات جـمـاعيه بـالبـايـو نـضـمـو ✨",
+    "نورنا بـكـروب مـكـالمات جـمـاعيه بـالبـايـو نـضـمـو 🎤",
+    "تـعـال لـكـروب مـكـالمات جـمـاعيه بـالبـايـو نـضـمـو 🔥",
+    "كـروب مـكـالمات جـمـاعيه بـالبـايـو نـضـمـو مـوجـود 🚀",
+    "انـضـم لـكـروب مـكـالمات جـمـاعيه بـالبـايـو نـضـمـو 💎",
+    "مـنور، كـروب مـكـالمات جـمـاعيه بـالبـايـو نـضـمـو 🌟",
+    "كـروب مـكـالمات جـمـاعيه بـالبـايـو نـضـمـو حـيـاك 🎈"
 ]
 
-# خادم ويب متوافق تماماً مع UptimeRobot
 class HealthCheckHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
@@ -36,7 +36,6 @@ def run_health_check():
     server.serve_forever()
 
 async def start_bot():
-    # تأكدي أن ملف Render_Session.session موجود في GitHub
     client = TelegramClient('Render_Session', API_ID, API_HASH)
     
     try:
@@ -49,24 +48,28 @@ async def start_bot():
 
     @client.on(events.NewMessage(chats=TARGET_GROUP))
     async def handler(event):
-        if not event.out:
-            try:
-                # انتظار عشوائي للتمويه
-                await asyncio.sleep(random.randint(15, 30))
-                await event.reply(random.choice(MESSAGES))
-                print(f"✅ Replied to a message in {TARGET_GROUP}")
-                # استراحة أمان
-                await asyncio.sleep(random.randint(60, 120))
-            except Exception as e:
-                print(f"⚠️ Skip error: {e}")
+        # تجاهل الرسائل الصادرة من حسابك
+        if event.out:
+            return
+            
+        try:
+            # انتظار عشوائي (15 إلى 35 ثانية) لتبدو كأنها كتابة يدوية
+            await asyncio.sleep(random.randint(15, 35))
+            
+            # اختيار رسالة بالنمط الجديد
+            reply_text = random.choice(MESSAGES)
+            await event.reply(reply_text)
+            print(f"✅ Replied with new style to message in {TARGET_GROUP}")
+            
+            # استراحة أمان (دقيقة إلى دقيقتين)
+            await asyncio.sleep(random.randint(60, 150))
+        except Exception as e:
+            print(f"⚠️ Skip error: {e}")
 
-    print("🚀 Monitoring for new messages...")
+    print("🚀 Monitoring for new messages with New Style...")
     await client.run_until_disconnected()
 
 if __name__ == "__main__":
-    # تشغيل الخادم في الخلفية
     web_thread = threading.Thread(target=run_health_check, daemon=True)
     web_thread.start()
-    
-    # تشغيل البوت الأساسي
     asyncio.run(start_bot())
