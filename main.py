@@ -49,7 +49,7 @@ def is_sleep_time():
 
 async def start_bot():
     while True:
-        client = TelegramClient('Render_Session', API_ID, API_HASH, 
+        client = TelegramClient('New_Session_V2', API_ID, API_HASH, 
                                 connection_retries=None, 
                                 retry_delay=5)
         try:
