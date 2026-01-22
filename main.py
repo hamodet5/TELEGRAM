@@ -16,7 +16,7 @@ TARGET_GROUP = 'stevenalbaghdadichat'
 BOT_TOKEN = '7394386222:AAHMuvrYSYwKplbyiAQXbfDbifbfEdztk_k'
 MY_ID = '5803355350'
 
-# --- ✍️ العودة للرسالة القديمة ---
+# --- الرسالة القديمة ---
 TEXT_BASE = "مـقـاطـعي بـالـبـايـو للجادين واليـدفـعـون تعـال وتـاكد قـبـل لا تـدفـع"
 
 EMOJIS = ["✨", "🔥", "🚀", "💎", "🌟", "👑", "🧿", "💫", "🎯", "🎭", "🎮", "🌹", "❤️", "🎧", "🎬"]
@@ -28,7 +28,7 @@ class HealthCheckHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
         self.end_headers()
-        self.wfile.write(b"Bot is Running with Old Message")
+        self.wfile.write(b"Bot is Running with Session File")
 
 def run_health_check():
     server = HTTPServer(('0.0.0.0', 8080), HealthCheckHandler)
@@ -47,12 +47,14 @@ def generate_dynamic_message():
     return f"{dec} {TEXT_BASE} {selected_emojis} {dec}"
 
 async def start_bot():
-    # استخدام اسم جلسة مستقر
-    client = TelegramClient('High_Speed_Session_V2', API_ID, API_HASH)
+    # تعديل الاسم هنا ليتطابق مع ملفك المرفوع (بدون لاحقة .session)
+    client = TelegramClient('High_Speed_Session', API_ID, API_HASH)
     
     try:
+        # المحاولة بالملف المرفوع لتجاوز الحظر
         await client.start(phone=PHONE_NUMBER)
-        send_notification("✅ **تمت العودة للرسالة القديمة!**\nالبوت يراقب المجموعة الآن...")
+        print("✅ تم الدخول باستخدام ملف الجلسة بنجاح!")
+        send_notification("🚀 **تم تشغيل البوت باستخدام ملف الجلسة المرفوع!**\nالحظر تم تخطيه بنجاح.")
 
         @client.on(events.NewMessage(chats=TARGET_GROUP))
         async def handler(event):
@@ -61,29 +63,23 @@ async def start_bot():
 
             user_id = event.sender_id
 
-            # نظام الاحتمالات لتقليل الضغط في المجموعات السريعة
-            if random.random() > 0.10: # معالجة 10% فقط من الرسائل لتجنب الحظر
+            # معالجة 10% من الرسائل لتجنب لفت الانتباه في المجموعة السريعة
+            if random.random() > 0.10: 
                 return
 
             if user_id in replied_users:
                 return
 
             try:
-                # انتظار عشوائي بسيط
                 await asyncio.sleep(random.randint(7, 15))
-                
-                # الرد بالرسالة القديمة
                 await event.reply(generate_dynamic_message())
-                
                 replied_users.add(user_id)
                 
-                # إشعار البوت
                 sender = await event.get_sender()
                 name = getattr(sender, 'first_name', 'User')
-                send_notification(f"✅ **تم الرد بالرسالة القديمة:**\n👤 {name}\n🆔 {user_id}")
+                send_notification(f"✅ **رد جديد:**\n👤 {name}\n🆔 {user_id}")
                 
-                # استراحة دقيقة لضمان عدم حظر الحساب
-                await asyncio.sleep(60)
+                await asyncio.sleep(60) # استراحة دقيقة
 
             except Exception as e:
                 print(f"Error: {e}")
@@ -91,7 +87,8 @@ async def start_bot():
         await client.run_until_disconnected()
         
     except Exception as e:
-        send_notification(f"❌ خطأ: {e}")
+        print(f"❌ خطأ: {e}")
+        send_notification(f"❌ فشل البوت في استخدام ملف الجلسة: {e}")
 
 if __name__ == "__main__":
     threading.Thread(target=run_health_check, daemon=True).start()
